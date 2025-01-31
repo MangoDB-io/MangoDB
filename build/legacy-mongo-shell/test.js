@@ -3,26 +3,28 @@
 (function () {
   "use strict";
 
-  // Update the following example with your test.
+  const oplog = db.getSiblingDB('local').oplog.rs;
+  
+  const t = db.foo;
+  t.drop();
 
-  const coll = db.test;
+  t.insertMany([
+    {a: 1},
+    {a: 1},
+  ]);
 
-  coll.drop();
 
-  const init = [
-    { _id: "double", v: 42.13 },
-    { _id: "double-whole", v: 42.0 },
-    { _id: "double-zero", v: 0.0 },
-  ];
+  // confirm that there's a single oplog entry with a top-level 'd' op.
+  t.deleteOne({a: 1});
+  assert.eq(1, oplog.find({ns: 'test.foo', op: 'd'}).itcount());
+  jsTestLog(oplog.findOne({ns: 'test.foo', op: 'd'}));
 
-  coll.insertMany(init);
+  t.insert({a: 1});
 
-  const query = { v: { $gt: 42.0 } };
+  // will write a single applyOps oplog entry for multiple deletes.
+  t.deleteMany({a: 1});
+  assert.eq(1, oplog.find({ns: 'test.foo', op: 'd'}).itcount());
+  jsTestLog(oplog.findOne({'o.applyOps.ns': 'test.foo'}));
 
-  const expected = [{ _id: "double", v: 42.13 }];
-
-  const actual = coll.find(query).toArray();
-  assert.eq(expected, actual);
-
-  print("test.js passed!");
+  print('test.js passed!');
 })();
