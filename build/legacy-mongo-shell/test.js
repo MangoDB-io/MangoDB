@@ -3,26 +3,52 @@
 (function () {
   "use strict";
 
-  // Update the following example with your test.
+  const t = db.foo;
+  t.drop();
+  db.bar.drop();
 
-  const coll = db.test;
+  // works.
+  assert.commandWorked(t.runCommand({ping: 1}));
+  assert.commandWorked(t.runCommand({ping: 1, apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('ping with Stable API parameters passed');
 
-  coll.drop();
+  assert.commandWorked(t.runCommand({insert: 'foo', documents: [{}]}));
+  assert.eq(1, t.count());
 
-  const init = [
-    { _id: "double", v: 42.13 },
-    { _id: "double-whole", v: 42.0 },
-    { _id: "double-zero", v: 0.0 },
-  ];
+  assert.commandWorked(t.runCommand({insert: 'foo', documents: [{}], apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  assert.eq(2, t.count());
+  jsTestLog('insert with Stable API parameters passed');
 
-  coll.insertMany(init);
+  assert.commandWorked(t.runCommand({count: 'foo', apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('count with Stable API parameters passed');
 
-  const query = { v: { $gt: 42.0 } };
+  // works
+  assert.commandWorked(t.runCommand({aggregate: 'test', pipeline: [], cursor: {}, apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('aggregate with Stable API parameters passed');
 
-  const expected = [{ _id: "double", v: 42.13 }];
+  // not implemented yet
+  assert.commandWorked(t.runCommand({collMod: 'foo', apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('collMod with Stable API parameters passed');
 
-  const actual = coll.find(query).toArray();
-  assert.eq(expected, actual);
+  // works
+  assert.commandWorked(t.runCommand({create: 'bar', apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('create with Stable API parameters passed');
 
-  print("test.js passed!");
+  // works
+  assert.commandWorked(t.runCommand({createIndexes: 'bar', indexes: [{key: {a: 1}, name: 'a'}], apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('createIndexes with Stable API parameters passed');
+
+  assert.commandWorked(t.runCommand({delete: 'bar', deletes: [{q: {}, limit: 0}], apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('delete with Stable API parameters passed');
+
+  assert.commandWorked(t.runCommand({dropIndexes: 'bar', index: 'a', apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('dropIndexes with Stable API parameters passed');
+
+  assert.commandWorked(t.runCommand({drop: 'bar', apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('drop with Stable API parameters passed');
+
+  assert.commandWorked(t.runCommand({dropDatabase: 1, apiVersion: '1', apiStrict: true, apiDeprecationErrors: true}));
+  jsTestLog('dropDatabase with Stable API parameters passed');
+
+  print('test.js passed!');
 })();
