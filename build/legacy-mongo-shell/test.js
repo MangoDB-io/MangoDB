@@ -3,26 +3,33 @@
 (function () {
   "use strict";
 
-  // Update the following example with your test.
+  const t = db.match_div_zero;
+  t.drop();
 
-  const coll = db.test;
+  // divisor cannot be 0, second argument is the divisor.
+  let pipe = {$match: {a: {$mod: [0 /* invalid */, 0]}}};
+  pipe = [pipe];
 
-  coll.drop();
+  // FailedToParse occurs when cursor is not present.
+  let cmd = {pipeline: pipe, cursor: {batchSize: 0}};
+  let res = t.runCommand('aggregate', cmd);
 
-  const init = [
-    { _id: "double", v: 42.13 },
-    { _id: "double-whole", v: 42.0 },
-    { _id: "double-zero", v: 0.0 },
-  ];
+  let code = 2; // BadValue for $mod in a $match pipeline stage.
 
-  coll.insertMany(init);
+  let assertThrowsMsg = 'expected the following error code: ' + tojson(code);
+  assert.commandFailedWithCode(res, code, assertThrowsMsg);
 
-  const query = { v: { $gt: 42.0 } };
+  pipe = {$project: {a: {$mod: [0 /* invalid */, 0]}}};
+  pipe = [pipe];
 
-  const expected = [{ _id: "double", v: 42.13 }];
+  cmd = {pipeline: pipe, cursor: {batchSize: 0}};
+  res = t.runCommand('aggregate', cmd);
 
-  const actual = coll.find(query).toArray();
-  assert.eq(expected, actual);
+  // eslint-disable-next-line max-len
+  code = 16610; // Failed to optimize pipeline :: caused by :: can't $mod by zero"
 
-  print("test.js passed!");
+  assertThrowsMsg = 'expected the following error code: ' + tojson(code);
+  assert.commandFailedWithCode(res, code, assertThrowsMsg);
+
+  print('test.js passed!');
 })();
