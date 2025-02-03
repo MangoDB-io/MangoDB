@@ -44,6 +44,7 @@ var bsonOrder = map[string]int{
 	"Binary":     5,
 	"TypeBinary": 5,
 
+	"UndefinedType": 6,
 	"TypeUndefined": 6,
 
 	"ObjectID":     7,

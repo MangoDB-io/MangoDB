@@ -253,6 +253,10 @@ func equalScalars(tb testing.TB, v1, v2 any) bool {
 
 		return s1.Subtype == s2.Subtype && bytes.Equal(s1.B, s2.B)
 
+	case wirebson.UndefinedType:
+		_, ok := v2.(wirebson.UndefinedType)
+		return ok
+
 	case wirebson.ObjectID:
 		s2, ok := v2.(wirebson.ObjectID)
 		if !ok {

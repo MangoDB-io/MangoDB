@@ -29,6 +29,8 @@ type RawArray []byte
 
 type Binary struct{}
 
+type UndefinedType struct{}
+
 type ObjectID struct{}
 
 type NullType struct{}

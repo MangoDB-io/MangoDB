@@ -98,7 +98,7 @@ func convert(t testing.TB, v any) any {
 	case int32:
 		return v
 	case primitive.Timestamp:
-		return wirebson.Timestamp(uint64(v.T)<<32 | uint64(v.I))
+		return wirebson.NewTimestamp(v.T, v.I)
 	case int64:
 		return v
 	case primitive.Decimal128:

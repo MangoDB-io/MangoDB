@@ -39,6 +39,9 @@ const (
 	typeCodeArray = typeCode(4) // array
 	// typeCodeBinData is a binary data type code.
 	typeCodeBinData = typeCode(5) // binData
+
+	typeCodeFIXME = typeCode(6) // FIXME
+
 	// typeCodeObjectID is an object id type code.
 	typeCodeObjectID = typeCode(7) // objectId
 	// typeCodeBool is a boolean type code.
@@ -84,6 +87,8 @@ func aliasFromType(v any) string {
 		return typeCodeString.String()
 	case wirebson.Binary:
 		return typeCodeBinData.String()
+	case wirebson.UndefinedType:
+		return typeCodeNull.String()
 	case wirebson.ObjectID:
 		return typeCodeObjectID.String()
 	case bool:

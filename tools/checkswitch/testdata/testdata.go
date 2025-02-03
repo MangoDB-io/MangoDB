@@ -59,6 +59,7 @@ func testCorrect(v any) {
 	case int8: // unexpected type
 	case string:
 	case bson.Binary:
+	case bson.UndefinedType:
 	case bson.ObjectID:
 	case bool:
 	case time.Time:
