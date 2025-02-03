@@ -21,10 +21,11 @@ import (
 	"net"
 	"net/url"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/FerretDB/wire"
+	"github.com/FerretDB/wire/wireclient"
 
 	"github.com/FerretDB/FerretDB/v2/internal/util/logging"
+	"github.com/FerretDB/FerretDB/v2/internal/util/must"
 )
 
 // ReadyZ represents the Readiness probe.
@@ -75,27 +76,46 @@ func (r *ReadyZ) Probe(ctx context.Context) bool {
 	for _, u := range urls {
 		r.l.DebugContext(ctx, fmt.Sprintf("Pinging %s", u))
 
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI(u))
+		conn, err := wireclient.Connect(ctx, u, r.l)
 		if err != nil {
 			r.l.ErrorContext(ctx, "Connection failed", logging.Error(err))
 			return false
 		}
 
-		pingErr := client.Ping(ctx, nil)
+		defer func() {
+			if err = conn.Close(); err != nil {
+				r.l.ErrorContext(ctx, "Closing connection failed", logging.Error(err))
+			}
+		}()
 
-		err = client.Disconnect(ctx)
-
-		if pingErr != nil {
-			r.l.ErrorContext(ctx, "Ping failed", logging.Error(pingErr))
-			return false
-		}
-
+		_, resBody, err := conn.Request(ctx, wire.MustOpMsg(
+			"ping", int32(1),
+			"$db", "admin",
+		))
 		if err != nil {
-			r.l.ErrorContext(ctx, "Disconnect failed", logging.Error(err))
+			r.l.ErrorContext(ctx, "Ping request failed", logging.Error(err))
 			return false
 		}
 
-		r.l.InfoContext(ctx, fmt.Sprintf("Ping to %s successful", u))
+		res, err := must.NotFail(resBody.(*wire.OpMsg).RawDocument()).Decode()
+		if err != nil {
+			r.l.ErrorContext(ctx, "Decoding ping response failed", logging.Error(err))
+			return false
+		}
+
+		if res.Get("ok").(float64) == 1 {
+			r.l.InfoContext(ctx, "Ping successful", slog.String("url", u))
+			continue
+		}
+
+		attrs := []any{
+			slog.Int("code", int(res.Get("code").(int32))),
+			slog.String("code_name", res.Get("codeName").(string)),
+			slog.String("errmsg", res.Get("errmsg").(string)),
+		}
+		r.l.ErrorContext(ctx, "Ping failed", attrs...)
+
+		return false
 	}
 
 	return true

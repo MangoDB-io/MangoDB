@@ -162,6 +162,37 @@ func TestEndSessionsErrors(t *testing.T) {
 	})
 }
 
+func TestEndSessionsUnauthenticated(t *testing.T) {
+	t.Parallel()
+
+	s := setup.SetupWithOpts(t, &setup.SetupOpts{WireConn: setup.WireConnNoAuth})
+
+	ctx, db, conn := s.Ctx, s.Collection, s.WireConn
+
+	randomUUID := must.NotFail(uuid.NewRandom())
+	sessionID := wirebson.Binary{B: randomUUID[:], Subtype: wirebson.BinaryUUID}
+
+	_, resBody, err := conn.Request(ctx, wire.MustOpMsg(
+		"endSessions", wirebson.MustArray(wirebson.MustDocument("id", sessionID)),
+		"$db", db.Name(),
+	))
+	require.NoError(t, err)
+
+	res, err := must.NotFail(resBody.(*wire.OpMsg).RawDocument()).DecodeDeep()
+	require.NoError(t, err)
+
+	fixCluster(t, res)
+
+	expected := must.NotFail(wirebson.NewDocument(
+		"ok", float64(0),
+		"errmsg", "Command endSessions requires authentication",
+		"code", int32(13),
+		"codeName", "Unauthorized",
+	))
+
+	testutil.AssertEqual(t, expected, res)
+}
+
 // endSession sends a request to end the given session.
 // If expectedErr is not nil, the error is checked, otherwise it checks the response.
 func endSessions(t testing.TB, ctx context.Context, conn *wireclient.Conn, dbName string, sessions any, expectedErr *wirebson.Document) {
