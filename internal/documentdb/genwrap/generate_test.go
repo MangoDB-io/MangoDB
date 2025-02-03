@@ -22,43 +22,27 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGenerate(t *testing.T) {
+func TestGenerateGoFunction(t *testing.T) {
 	t.Parallel()
 
 	testCases := map[string]struct { //nolint:vet // use only for testing
-		f convertedRoutine
+		data templateData
 
 		res string
 	}{
 		"DropIndexes": {
-			f: convertedRoutine{
-				Name:        "DropIndexes",
+			data: templateData{
+				FuncName:    "DropIndexes",
 				SQLFuncName: "documentdb_api.drop_indexes",
 				IsProcedure: true,
 				Comment: `documentdb_api.drop_indexes(p_database_name text, p_arg documentdb_core.bson, ` +
 					`INOUT retval documentdb_core.bson DEFAULT NULL)`,
-				QueryArgs:    "$1, $2::bytea, $3::bytea",
-				QueryReturns: "retval::bytea",
-				GoParams: []convertedRoutineParam{
-					{
-						Name: "databaseName",
-						Type: "string",
-					},
-					{
-						Name: "arg",
-						Type: "wirebson.RawDocument",
-					},
-					{
-						Name: "retValue",
-						Type: "wirebson.RawDocument",
-					},
-				},
-				GoReturns: []convertedRoutineParam{
-					{
-						Name: "outRetValue",
-						Type: "wirebson.RawDocument",
-					},
-				},
+				SQLArgs:      "$1, $2::bytea, $3::bytea",
+				SQLReturns:   "retval::bytea",
+				Params:       "databaseName string, arg wirebson.RawDocument, retValue wirebson.RawDocument",
+				Returns:      "outRetValue wirebson.RawDocument",
+				QueryRowArgs: "databaseName, arg, retValue",
+				ScanArgs:     "&outRetValue",
 			},
 			//nolint:lll // generated function is too long
 			res: `
@@ -87,7 +71,7 @@ func DropIndexes(ctx context.Context, conn *pgx.Conn, l *slog.Logger, databaseNa
 
 			var b bytes.Buffer
 			w := bufio.NewWriter(&b)
-			err := Generate(w, &tc.f)
+			err := generateGoFunction(w, &tc.data)
 			require.NoError(t, err)
 
 			err = w.Flush()

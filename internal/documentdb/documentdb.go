@@ -17,27 +17,19 @@ package documentdb
 
 import "context"
 
-// Code for `documentdb_core` can't be generated yet:
-// TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/1148
-
-// The only schema we should be using.
+// The only schema we should be using is documentdb_api.
 // See also:
 // TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/1221
-//go:generate go run ./genwrap -schemas=documentdb_api
-
-// Code for `documentdb_api_catalog` can't be generated yet:
-// TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/1148
 //
-// We use that schema for `listDatabases` and `explain` commands.
+// We use documentdb_api_catalog schema for `listDatabases` and `explain` commands.
 // TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/26
 // TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/143
-
-// Code for `documentdb_api_internal` can't be generated yet:
-// TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/1148
 //
-// We use that schema for indexes and authentication:
+// We use documentdb_api_internal schema for indexes and authentication:
 // TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/1147
 // TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/1221
+//
+//go:generate go run ./genwrap -debug -schemas=documentdb_api,documentdb_api_catalog,documentdb_api_internal,documentdb_core
 
 // todoCtx should be used instead of [context.TODO] in this package.
 // See https://github.com/jackc/pgx/issues/1726#issuecomment-1711612138.
