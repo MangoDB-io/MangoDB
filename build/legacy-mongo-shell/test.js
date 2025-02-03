@@ -3,26 +3,12 @@
 (function () {
   "use strict";
 
-  // Update the following example with your test.
+  const t = db.foo;
+  t.drop();
 
-  const coll = db.test;
+  assert.commandWorked(t.stats({scale: 1}));
+  // eslint-disable-next-line max-len
+  assert.commandWorked(t.stats()); // causes a network error and fails because it uses BSON undefined type 0x06.
 
-  coll.drop();
-
-  const init = [
-    { _id: "double", v: 42.13 },
-    { _id: "double-whole", v: 42.0 },
-    { _id: "double-zero", v: 0.0 },
-  ];
-
-  coll.insertMany(init);
-
-  const query = { v: { $gt: 42.0 } };
-
-  const expected = [{ _id: "double", v: 42.13 }];
-
-  const actual = coll.find(query).toArray();
-  assert.eq(expected, actual);
-
-  print("test.js passed!");
+  print('test.js passed!');
 })();
