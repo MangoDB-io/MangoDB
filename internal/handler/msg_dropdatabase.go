@@ -58,7 +58,7 @@ func (h *Handler) MsgDropDatabase(connCtx context.Context, msg *wire.OpMsg) (*wi
 
 	defer conn.Release()
 
-	_, err = documentdb_api.DropDatabase(connCtx, conn.Conn(), h.L, dbName, nil)
+	err = documentdb_api.DropDatabase(connCtx, conn.Conn(), h.L, dbName, nil)
 	if err != nil {
 		return nil, lazyerrors.Error(err)
 	}

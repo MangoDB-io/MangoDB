@@ -28,28 +28,45 @@ func TestExtract(t *testing.T) {
 	}
 
 	t.Parallel()
+
 	ctx := testutil.Ctx(t)
 	uri := "postgres://username:password@127.0.0.1:5432/postgres"
 
-	rows := Extract(ctx, uri, "documentdb_api")
+	rows, err := Extract(ctx, uri, []string{"documentdb_core", "documentdb_api"})
+	require.NoError(t, err)
 	require.NotZero(t, rows)
-
-	row := rows[0]
 
 	expected := map[string]any{
 		"specific_schema":    "documentdb_api",
 		"specific_name":      "aggregate_cursor_first_page_19111",
 		"routine_name":       "aggregate_cursor_first_page",
 		"routine_type":       "FUNCTION",
+		"routine_data_type":  "record",
+		"routine_udt_schema": "pg_catalog",
+		"routine_udt_name":   "record",
 		"parameter_name":     "database",
 		"parameter_mode":     "IN",
 		"parameter_default":  nil,
 		"data_type":          "text",
 		"udt_schema":         "pg_catalog",
 		"udt_name":           "text",
+	}
+	require.Equal(t, expected, rows[0])
+
+	expected = map[string]any{
+		"specific_schema":    "documentdb_api",
+		"specific_name":      "aggregate_cursor_first_page_19111",
+		"routine_name":       "aggregate_cursor_first_page",
+		"routine_type":       "FUNCTION",
 		"routine_data_type":  "record",
 		"routine_udt_schema": "pg_catalog",
 		"routine_udt_name":   "record",
+		"parameter_name":     "commandspec",
+		"parameter_mode":     "IN",
+		"parameter_default":  nil,
+		"data_type":          "USER-DEFINED",
+		"udt_schema":         "documentdb_core",
+		"udt_name":           "bson",
 	}
-	require.Equal(t, expected, row)
+	require.Equal(t, expected, rows[1])
 }

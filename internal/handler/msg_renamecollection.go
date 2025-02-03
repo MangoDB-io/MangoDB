@@ -140,7 +140,7 @@ func (h *Handler) MsgRenameCollection(connCtx context.Context, msg *wire.OpMsg) 
 
 	defer conn.Release()
 
-	_, err = documentdb_api.RenameCollection(connCtx, conn.Conn(), h.L, oldDBName, oldCName, newCName, dropTarget)
+	err = documentdb_api.RenameCollection(connCtx, conn.Conn(), h.L, oldDBName, oldCName, newCName, dropTarget)
 	if err != nil {
 		return nil, lazyerrors.Error(err)
 	}
