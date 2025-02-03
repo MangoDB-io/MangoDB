@@ -30,7 +30,8 @@ import (
 //
 // The passed context is canceled when the client connection is closed.
 //
-// TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/26
+// TODO https://github.com/FerretDB/FerretDB/issues/4722
+// TODO https://github.com/microsoft/documentdb/issues/45
 func (h *Handler) MsgListDatabases(connCtx context.Context, msg *wire.OpMsg) (*wire.OpMsg, error) {
 	spec, err := msg.RawDocument()
 	if err != nil {

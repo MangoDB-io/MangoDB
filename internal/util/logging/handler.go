@@ -55,7 +55,6 @@ type NewHandlerOpts struct {
 
 	// When set, causes handler to panic on messages with leading/trailing spaces or ending punctuation.
 	// It must not be set unconditionally because we don't control messages from third-party packages.
-	//
 	// But we can enable it in our tests and when [devbuild.Enabled] is true.
 	// TODO https://github.com/FerretDB/FerretDB/issues/4511
 	CheckMessages bool

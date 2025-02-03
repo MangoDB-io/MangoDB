@@ -25,12 +25,14 @@ import (
 
 // DatabaseInfo represents an information about a single database.
 type DatabaseInfo struct {
-	// TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/26
+	// TODO https://github.com/FerretDB/FerretDB/issues/4722
+	// TODO https://github.com/microsoft/documentdb/issues/45
 }
 
 // ListDatabases returns a list of existing databases and their information.
 //
-// TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/26
+// TODO https://github.com/FerretDB/FerretDB/issues/4722
+// TODO https://github.com/microsoft/documentdb/issues/45
 func (p *Pool) ListDatabases(ctx context.Context) (map[string]DatabaseInfo, error) {
 	ctx, span := otel.Tracer("").Start(ctx, "pool.ListDatabases")
 	defer span.End()

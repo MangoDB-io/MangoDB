@@ -68,10 +68,11 @@ func toLogLines(buf *bytes.Buffer) []string {
 func bufLogger() (*slog.Logger, *bytes.Buffer) {
 	var buf bytes.Buffer
 	h := logging.NewHandler(&buf, &logging.NewHandlerOpts{
-		Base:         "console",
-		Level:        slog.LevelInfo,
-		RemoveTime:   true,
-		RemoveSource: true,
+		Base:          "console",
+		Level:         slog.LevelInfo,
+		RemoveTime:    true,
+		RemoveSource:  true,
+		CheckMessages: false, // TODO https://github.com/FerretDB/FerretDB/issues/4511
 	})
 
 	return slog.New(h), &buf
