@@ -3,26 +3,19 @@
 (function () {
   "use strict";
 
-  // Update the following example with your test.
+  // Make 4 test databases.
+  db.getSiblingDB('foo').coll.insert({});
+  db.getSiblingDB('bar').coll.insert({});
+  db.getSiblingDB('buz').coll.insert({});
+  db.getSiblingDB('baz').coll.insert({});
 
-  const coll = db.test;
+  const listDatabasesOut = db.adminCommand({listDatabases: 1});
+  const dbList = listDatabasesOut.databases;
+  let sizeSum = 0;
+  for (let i = 0; i < dbList.length; i++) {
+    sizeSum += dbList[i].sizeOnDisk;
+  }
+  assert.eq(sizeSum, listDatabasesOut.totalSize);
 
-  coll.drop();
-
-  const init = [
-    { _id: "double", v: 42.13 },
-    { _id: "double-whole", v: 42.0 },
-    { _id: "double-zero", v: 0.0 },
-  ];
-
-  coll.insertMany(init);
-
-  const query = { v: { $gt: 42.0 } };
-
-  const expected = [{ _id: "double", v: 42.13 }];
-
-  const actual = coll.find(query).toArray();
-  assert.eq(expected, actual);
-
-  print("test.js passed!");
+  print('test.js passed!');
 })();
