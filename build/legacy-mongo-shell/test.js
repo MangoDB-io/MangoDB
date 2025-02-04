@@ -3,26 +3,15 @@
 (function () {
   "use strict";
 
-  // Update the following example with your test.
+  const t = db.pull_all;
 
-  const coll = db.test;
+  t.drop();
 
-  coll.drop();
+  t.insert({'_id': 1, 'scores': [0, 2, 5, 5, 1, 0]});
+  t.update({'_id': 1}, {$pullAll: {'scores': [0, 5]}});
 
-  const init = [
-    { _id: "double", v: 42.13 },
-    { _id: "double-whole", v: 42.0 },
-    { _id: "double-zero", v: 0.0 },
-  ];
+  const expected = {'_id': 1, 'scores': [2, 1]};
+  assert.eq(expected.scores, t.findOne().scores);
 
-  coll.insertMany(init);
-
-  const query = { v: { $gt: 42.0 } };
-
-  const expected = [{ _id: "double", v: 42.13 }];
-
-  const actual = coll.find(query).toArray();
-  assert.eq(expected, actual);
-
-  print("test.js passed!");
+  print('test.js passed!');
 })();
