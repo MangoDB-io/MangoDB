@@ -52,17 +52,21 @@ func TestClient(t *testing.T) {
 		c, err := NewClient(cacheFilePath, t.Logf, t.Logf, t.Logf)
 		require.NoError(t, err)
 
-		actual, err := c.checkIssueStatus(ctx, "FerretDB", 10)
+		actual, err := c.checkIssueStatus(ctx, "FerretDB", "FerretDB", 10)
 		require.NoError(t, err)
 		assert.Equal(t, IssueOpen, actual)
 
-		actual, err = c.checkIssueStatus(ctx, "FerretDB", 1)
+		actual, err = c.checkIssueStatus(ctx, "FerretDB", "FerretDB", 1)
 		require.NoError(t, err)
 		assert.Equal(t, IssueClosed, actual)
 
-		actual, err = c.checkIssueStatus(ctx, "FerretDB", 999999)
+		actual, err = c.checkIssueStatus(ctx, "FerretDB", "FerretDB", 999999)
 		require.NoError(t, err)
 		assert.Equal(t, IssueNotFound, actual)
+
+		actual, err = c.checkIssueStatus(ctx, "microsoft", "documentdb", 1)
+		require.NoError(t, err)
+		assert.Equal(t, IssueClosed, actual)
 	})
 
 	t.Run("IssueStatus", func(t *testing.T) {
@@ -71,17 +75,21 @@ func TestClient(t *testing.T) {
 		c, err := NewClient(cacheFilePath, t.Logf, t.Logf, t.Logf)
 		require.NoError(t, err)
 
-		actual, err := c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/10")
+		actual, err := c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/10", "FerretDB", "FerretDB", 10)
 		require.NoError(t, err)
 		assert.Equal(t, IssueOpen, actual)
 
-		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/1")
+		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/1", "FerretDB", "FerretDB", 1)
 		require.NoError(t, err)
 		assert.Equal(t, IssueClosed, actual)
 
-		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/999999")
+		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/999999", "FerretDB", "FerretDB", 999999)
 		require.NoError(t, err)
 		assert.Equal(t, IssueNotFound, actual)
+
+		actual, err = c.IssueStatus(ctx, "https://github.com/microsoft/documentdb/issues/1", "microsoft", "documentdb", 1)
+		require.NoError(t, err)
+		assert.Equal(t, IssueClosed, actual)
 
 		// The following tests should use cache and not the client,
 		// but it may be empty if tests above failed for some reason.
@@ -92,16 +100,20 @@ func TestClient(t *testing.T) {
 
 		c.c = nil
 
-		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/10")
+		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/10", "FerretDB", "FerretDB", 10)
 		require.NoError(t, err)
 		assert.Equal(t, IssueOpen, actual)
 
-		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/1")
+		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/1", "FerretDB", "FerretDB", 1)
 		require.NoError(t, err)
 		assert.Equal(t, IssueClosed, actual)
 
-		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/999999")
+		actual, err = c.IssueStatus(ctx, "https://github.com/FerretDB/FerretDB/issues/999999", "FerretDB", "FerretDB", 999999)
 		require.NoError(t, err)
 		assert.Equal(t, IssueNotFound, actual)
+
+		actual, err = c.IssueStatus(ctx, "https://github.com/microsoft/documentdb/issues/1", "microsoft", "documentdb", 1)
+		require.NoError(t, err)
+		assert.Equal(t, IssueClosed, actual)
 	})
 }

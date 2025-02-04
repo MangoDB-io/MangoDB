@@ -51,3 +51,11 @@ func testIncorrectFormatNotExists() {
 func testPrivateIssue() {
 	// TODO https://github.com/FerretDB/FerretDB-DocumentDB/issues/1
 }
+
+func testIncorrectIssueNumber() {
+	// TODO https://github.com/FerretDB/FerretDB/issues/0 // want "invalid TODO: incorrect issue number"
+}
+
+func testDocumentDB() {
+	// TODO https://github.com/microsoft/documentdb/issues/1 // want "invalid TODO: linked issue https://github.com/microsoft/documentdb/issues/1 is closed"
+}

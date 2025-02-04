@@ -19,13 +19,13 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/FerretDB/FerretDB/tools/github"
@@ -43,10 +43,9 @@ func main() {
 	}
 }
 
-// issueRE represents FerretDB issue url with label in Markdown format,
-// such as: `[Label](https://github.com/FerretDB/FerretDB/issues/1)`.
-// It returns url as a submatch.
-var issueRE = regexp.MustCompile(`\[\w+]\((\Qhttps://github.com/FerretDB/\E[-\w]+/issues/\d+)\)`)
+// issueRE represents FerretDB and microsoft issue url.
+// It returns owner, repo and issue number as submatches.
+var issueRE = regexp.MustCompile(`\Qhttps://github.com/\E(FerretDB|microsoft)/([-\w]+)/issues/(\d+)`)
 
 // checkBlogFiles verifies that blog posts are correctly formatted.
 func checkBlogFiles(files []string) error {
@@ -236,7 +235,7 @@ func verifyTags(fm []byte) error {
 	return nil
 }
 
-// checkIssueURLs validates FerretDB issues URLs if they occur in the r [io.Reader].
+// checkIssueURLs validates FerretDB and microsoft issues URLs if they occur in the r [io.Reader].
 // If URL formatting is invalid, the represented issue is closed or not found - the appropriate
 // message is sent to l [*log.Logger].
 //
@@ -255,25 +254,29 @@ func checkIssueURLs(client *github.Client, r io.Reader, l *log.Logger) (bool, er
 			continue
 		}
 
-		if len(match) != 2 {
-			l.Printf("invalid Markdown URL format:\n %s", line)
+		if len(match) != 4 {
+			l.Printf("invalid URL format:\n %s", line)
 			failed = true
 
 			continue
 		}
 
-		url := match[1]
+		url, owner, repo := match[0], match[1], match[2]
 
-		var status github.IssueStatus
-		status, err := client.IssueStatus(context.TODO(), url)
+		num, err := strconv.Atoi(match[3])
+		if err != nil {
+			panic(err)
+		}
 
-		switch {
-		case err == nil:
-			// nothing
-		case errors.Is(err, github.ErrIncorrectURL),
-			errors.Is(err, github.ErrIncorrectIssueNumber):
-			l.Print(err.Error())
-		default:
+		if num <= 0 {
+			l.Printf("incorrect issue number: %s\n", line)
+			failed = true
+
+			continue
+		}
+
+		status, err := client.IssueStatus(context.TODO(), url, owner, repo, num)
+		if err != nil {
 			log.Panic(err)
 		}
 

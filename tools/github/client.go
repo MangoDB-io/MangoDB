@@ -23,8 +23,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strconv"
 	"time"
 
 	"github.com/FerretDB/gh"
@@ -109,57 +107,13 @@ func CacheFilePath() (string, error) {
 	return filepath.Join(dir, "tmp", "githubcache", "cache.json"), nil
 }
 
-var (
-	// Correctly formatted FerretDB issue.
-	// It returns repository name and the issue number as it's submatches.
-	urlRE = regexp.MustCompile(`^\Qhttps://github.com/FerretDB/\E([-\w]+)/issues/(\d+)$`)
-
-	// ErrIncorrectURL indicates that FerretDB issue URL is formatted incorrectly.
-	ErrIncorrectURL = errors.New("invalid TODO: incorrect format")
-
-	// ErrIncorrectIssueNumber indicates that FerretDB issue number is formatted incorrectly.
-	ErrIncorrectIssueNumber = errors.New("invalid TODO: incorrect issue number")
-)
-
-// parseIssueURL takes the properly formatted FerretDB issue URL and returns it's
-// repository name and issue number.
-// If the issue number or URL formatting is incorrect, the error is returned.
-func parseIssueURL(line string) (repo string, num int, err error) {
-	match := urlRE.FindStringSubmatch(line)
-
-	if len(match) != 3 {
-		err = ErrIncorrectURL
-		return
-	}
-
-	repo = match[1]
-
-	num, err = strconv.Atoi(match[2])
-
-	switch {
-	case err != nil:
-		panic(err)
-	case num <= 0:
-		err = ErrIncorrectIssueNumber
-		return
-	default:
-		return
-	}
-}
-
 // IssueStatus returns issue status.
 // It uses cache.
 //
-// If URL formatting is incorrect it returns `ErrIncorrectURL`, or `ErrIncorrectIssueNumber` error.
-// Any other error means something fatal.
+// Any error means something fatal.
 // On rate limit, the error is logged once and (issueOpen, nil) is returned.
-func (c *Client) IssueStatus(ctx context.Context, url string) (IssueStatus, error) {
+func (c *Client) IssueStatus(ctx context.Context, url, owner, repo string, num int) (IssueStatus, error) {
 	start := time.Now()
-
-	repo, num, err := parseIssueURL(url)
-	if err != nil {
-		return IssueNotFound, err
-	}
 
 	cache := &cacheFile{
 		Issues: make(map[string]issue),
@@ -196,7 +150,7 @@ func (c *Client) IssueStatus(ctx context.Context, url string) (IssueStatus, erro
 				return nil, noUpdate
 			}
 
-			if res, err = c.checkIssueStatus(ctx, repo, num); err != nil {
+			if res, err = c.checkIssueStatus(ctx, owner, repo, num); err != nil {
 				var rle *github.RateLimitError
 				if !errors.As(err, &rle) {
 					return nil, fmt.Errorf("%s: %s", url, err)
@@ -246,8 +200,8 @@ func (c *Client) IssueStatus(ctx context.Context, url string) (IssueStatus, erro
 
 // checkIssueStatus checks issue status via GitHub API.
 // It does not use cache.
-func (c *Client) checkIssueStatus(ctx context.Context, repo string, num int) (IssueStatus, error) {
-	issue, resp, err := c.c.Issues.Get(ctx, "FerretDB", repo, num)
+func (c *Client) checkIssueStatus(ctx context.Context, owner, repo string, num int) (IssueStatus, error) {
+	issue, resp, err := c.c.Issues.Get(ctx, owner, repo, num)
 	if err != nil {
 		if resp != nil && resp.StatusCode == http.StatusNotFound {
 			return IssueNotFound, nil
