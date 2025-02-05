@@ -4,6 +4,11 @@ sidebar_position: 2
 
 # DEB package
 
+:::note
+The `.deb` package for PostgreSQL with DocumentDB extension is not currently available.
+Please check the DocumentDB extension [installation guide](../documentdb/docker.md) for alternative installation methods.
+:::
+
 To install the `.deb` packages for FerretDB on your Debian, Ubuntu, and other `.deb`-based systems,
 you can use `dpkg` tool.
 
@@ -22,12 +27,6 @@ ferretdb --version
 ```
 
 FerretDB does not automatically install PostgreSQL.
-To install PostgreSQL, run the following commands:
-
-```sh
-sudo apt update
-sudo apt install -y postgresql
-```
 
 The `.deb` package ships with the systemd unit for starting FerretDB automatically.
 For more information about its configuration, please take a look at [systemd configuration guide](systemd.md).

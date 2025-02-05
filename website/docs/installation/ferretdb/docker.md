@@ -14,8 +14,10 @@ We provide three Docker images for various deployments:
 An evaluation image is documented [separately](../evaluation.md).
 The rest are covered below.
 
+:::tip
 All Docker images include a [`HEALTHCHECK` instruction](https://docs.docker.com/reference/dockerfile/#healthcheck)
 that behaves like a [readiness probe](../../configuration/observability.md#probes).
+:::
 
 ## Production image
 

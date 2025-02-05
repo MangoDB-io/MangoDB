@@ -63,16 +63,18 @@ You may create new users directly from within PostgreSQL using the `CREATE USER`
 If you access PostgreSQL through the `psql` command-line tool or any other client, you can create a new user with the following command:
 
 ```sql
-CREATE USER newuser WITH PASSWORD 'newpassword';"
+CREATE USER <newuser> WITH PASSWORD '<newpassword>';"
 ```
+
+Ensure to update `<newuser>` and `<newpassword>` with your desired values.
 
 Once the user is created, you may connect to FerretDB using the new user credentials:
 
 ```sh
-mongodb://newuser:newpassword@127.0.0.1:27017/
+mongodb://<newuser>:<newpassword>@127.0.0.1:27017/
 ```
 
-(See [PostgreSQL documentation for more informartion on creating users](https://www.postgresql.org/docs/current/sql-createuser.html)).
+(See [PostgreSQL documentation for more information on creating users](https://www.postgresql.org/docs/current/sql-createuser.html)).
 
 ### Create users with FerretDB
 
@@ -84,8 +86,8 @@ If you are using the MongoDB Shell to connect to FerretDB, you can create a new 
 
 ```js
 db.createUser({
-  user: 'newuser',
-  pwd: 'newpassword',
+  user: '<newuser>',
+  pwd: '<newpassword>',
   roles: []
 })
 ```
@@ -98,7 +100,7 @@ Set `role` as an empty array (`[]`) when creating a user.
 You may then connect to FerretDB using the new user credentials:
 
 ```sh
-mongodb://newuser:newpassword@127.0.0.1:27017/
+mongodb://<newuser>:<newpassword>@127.0.0.1:27017/
 ```
 
 ## Disable authentication
@@ -127,8 +129,8 @@ services:
   postgres:
     image: ghcr.io/ferretdb/postgres-documentdb:16
     environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: <username>
+      POSTGRES_PASSWORD: <password>
       POSTGRES_DB: postgres
     volumes:
       - ./data:/var/lib/postgresql/data
@@ -139,16 +141,17 @@ services:
     ports:
       - 27017:27017
     environment:
-      FERRETDB_POSTGRESQL_URL: postgres://username:password@postgres:5432/postgres
+      FERRETDB_POSTGRESQL_URL: postgres://<username>:<password>@postgres:5432/postgres
 
 networks:
   default:
     name: ferretdb
 ```
 
-In this example, FerretDB establishes a connection to PostgreSQL using the specified connection string (`postgres://username:password@postgres:5432/postgres`).
+In this example, FerretDB establishes a connection to PostgreSQL using the specified connection string (`postgres://<username>:<password>@postgres:5432/postgres`).
+Replace `<username>` and `<password>` with your desired values.
 
-If authentication is enabled, a valid PostgreSQL user credential must be provided in the connection URI to access the database (e.g., `mongodb://username:password@@127.0.0.1:27017/`).
+If authentication is enabled, a valid PostgreSQL user credential must be provided in the connection URI to access the database (e.g., `mongodb://<username>:<password>@@127.0.0.1:27017/`).
 
 :::warning
 For local connections, including those configured via Docker Compose, PostgreSQL may use `trust` authentication; even if a `POSTGRES_PASSWORD` is set, any user with access to the PostgreSQL server may connect to the database without a password.
