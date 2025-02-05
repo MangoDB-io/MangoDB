@@ -7,7 +7,7 @@ toolchain go1.23.5
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/FerretDB/wire v0.0.16
-	github.com/alecthomas/kong v1.6.1
+	github.com/alecthomas/kong v1.7.0
 	github.com/arl/statsviz v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgerrcode v0.0.0-20240316143900-6e2875d9b438
@@ -27,7 +27,7 @@ require (
 	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/crypto/x509roots/fallback v0.0.0-20250118192723-a8ea4be81f07
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
-	golang.org/x/sys v0.29.0
+	golang.org/x/sys v0.30.0
 )
 
 require (
