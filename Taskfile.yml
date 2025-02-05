@@ -265,6 +265,7 @@ tasks:
         --postgresql-url='postgres://username:password@127.0.0.1:5432/postgres'
         --dev-records-dir=tmp/records
         --otel-traces-url=http://127.0.0.1:4318/v1/traces
+        --log-format=mongo
 
   run-secure:
     desc: "Run FerretDB with auth"

@@ -92,7 +92,7 @@ func (ch *consoleHandler) Handle(ctx context.Context, r slog.Record) error {
 		buf.WriteRune('\t')
 
 		if ch.testAttrs != nil {
-			ch.testAttrs["time"] = t
+			ch.testAttrs[slog.TimeKey] = t
 		}
 	}
 
@@ -102,7 +102,7 @@ func (ch *consoleHandler) Handle(ctx context.Context, r slog.Record) error {
 		buf.WriteRune('\t')
 
 		if ch.testAttrs != nil {
-			ch.testAttrs["level"] = l
+			ch.testAttrs[slog.LevelKey] = l
 		}
 	}
 
@@ -114,7 +114,7 @@ func (ch *consoleHandler) Handle(ctx context.Context, r slog.Record) error {
 			buf.WriteRune('\t')
 
 			if ch.testAttrs != nil {
-				ch.testAttrs["source"] = s
+				ch.testAttrs[slog.SourceKey] = s
 			}
 		}
 	}
@@ -123,7 +123,7 @@ func (ch *consoleHandler) Handle(ctx context.Context, r slog.Record) error {
 		buf.WriteString(r.Message)
 
 		if ch.testAttrs != nil {
-			ch.testAttrs["msg"] = r.Message
+			ch.testAttrs[slog.MessageKey] = r.Message
 		}
 	}
 

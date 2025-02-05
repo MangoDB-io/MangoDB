@@ -43,6 +43,8 @@ func TestHandler(t *testing.T) {
 		"console": `2024-05-31T09:26:42.000Z	INFO	logging/handler_test.go:34	` +
 			"multi\nline\nmessage\t" +
 			`{"g2":{"g1":{"k1":42,"k2":7000000000},"g3":{"s":"a"},"i":1,"k3":"dup","name":"test.logger"}}` + "\n",
+		// TODO
+		"mongo": `{"t":{"$date":"2024-05-31T09:26:42Z"},"s":"I"}` + "\n",
 		"text": `time=2024-05-31T09:26:42.000Z level=INFO source=logging/handler_test.go:34 ` +
 			`msg="multi\nline\nmessage" ` +
 			`g2.i=1 g2.g3.s=a g2.name=test.logger g2.g1.k1=42 g2.g1.k2=7s g2.k3=s g2.k3=dup` + "\n",

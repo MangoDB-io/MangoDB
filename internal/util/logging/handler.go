@@ -136,6 +136,8 @@ func NewHandler(out io.Writer, opts *NewHandlerOpts) *Handler {
 	switch opts.Base {
 	case "console":
 		h = newConsoleHandler(out, opts, nil)
+	case "mongo":
+		h = newMongoHandler(out, opts, nil)
 	case "text":
 		h = slog.NewTextHandler(out, stdOpts)
 	case "json":
