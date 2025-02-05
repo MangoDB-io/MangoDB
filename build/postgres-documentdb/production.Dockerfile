@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM postgres:16.6 AS production
+FROM postgres:17.2 AS production
 
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US
