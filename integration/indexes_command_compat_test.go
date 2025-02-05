@@ -21,6 +21,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/FerretDB/FerretDB/v2/integration/setup"
 	"github.com/FerretDB/FerretDB/v2/integration/shareddata"
@@ -477,6 +478,100 @@ func TestDropIndexesCommandCompat(t *testing.T) {
 				require.False(t, nonEmptyResults, "expected empty results (no indexes should be deleted)")
 			default:
 				t.Fatalf("unknown result type %v", tc.resultType)
+			}
+		})
+	}
+}
+
+func TestReIndexCompat(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		models []mongo.IndexModel // optional indexes to create before reIndex
+	}{
+		"DefaultIndex": {},
+		"OneIndex": {
+			models: []mongo.IndexModel{
+				{
+					Keys: bson.D{{"v", -1}},
+				},
+			},
+		},
+		"MultipleIndexes": {
+			models: []mongo.IndexModel{
+				{
+					Keys: bson.D{{"foo", 1}, {"bar", -1}},
+				},
+				{
+					Keys: bson.D{{"v", 1}},
+				},
+				{
+					Keys: bson.D{{"v", -1}},
+				},
+			},
+		},
+		"UniqueIndex": {
+			models: []mongo.IndexModel{
+				{
+					Keys:    bson.D{{"v", 1}},
+					Options: options.Index().SetUnique(true),
+				},
+			},
+		},
+		"CustomName": {
+			models: []mongo.IndexModel{
+				{
+					Keys:    bson.D{{"foo", 1}, {"bar", -1}},
+					Options: options.Index().SetName("custom-name"),
+				},
+			},
+		},
+		"ExpireAfterOption": {
+			models: []mongo.IndexModel{
+				{
+					Keys:    bson.D{{"v", 1}},
+					Options: options.Index().SetExpireAfterSeconds(1),
+				},
+			},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s := setup.SetupCompatWithOpts(t, &setup.SetupCompatOpts{
+				Providers: []shareddata.Provider{shareddata.Int32s},
+			})
+			ctx, targetCollections, compatCollections := s.Ctx, s.TargetCollections, s.CompatCollections
+
+			for i := range targetCollections {
+				targetCollection := targetCollections[i]
+				compatCollection := compatCollections[i]
+
+				require.Equal(t, compatCollection.Name(), targetCollection.Name())
+				collectionName := targetCollection.Name()
+
+				t.Run(collectionName, func(t *testing.T) {
+					if tc.models != nil {
+						targetRes, targetErr := targetCollection.Indexes().CreateMany(ctx, tc.models)
+						compatRes, compatErr := compatCollection.Indexes().CreateMany(ctx, tc.models)
+
+						require.NoError(t, targetErr)
+						require.NoError(t, compatErr)
+						assert.Equal(t, compatRes, targetRes)
+					}
+
+					command := bson.D{{"reIndex", collectionName}}
+
+					var targetRes bson.D
+					targetErr := targetCollection.Database().RunCommand(ctx, command).Decode(&targetRes)
+
+					var compatRes bson.D
+					compatErr := compatCollection.Database().RunCommand(ctx, command).Decode(&compatRes)
+
+					require.NoError(t, targetErr)
+					require.NoError(t, compatErr)
+					assert.Equal(t, compatRes, targetRes)
+				})
 			}
 		})
 	}

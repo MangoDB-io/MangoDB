@@ -15,58 +15,15 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"fmt"
 	"log/slog"
-	"net"
-	"net/url"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/FerretDB/FerretDB/v2/internal/util/ctxutil"
 	"github.com/FerretDB/FerretDB/v2/internal/util/debug"
 	"github.com/FerretDB/FerretDB/v2/internal/util/lazyerrors"
 	"github.com/FerretDB/FerretDB/v2/internal/util/logging"
 )
-
-// setupMongoDB configures MongoDB containers.
-func setupMongoDB(ctx context.Context, logger *slog.Logger, uri, name string) error {
-	u, err := url.Parse(uri)
-	if err != nil {
-		return lazyerrors.Error(err)
-	}
-
-	_, port, err := net.SplitHostPort(u.Host)
-	if err != nil {
-		return lazyerrors.Error(err)
-	}
-
-	logger = logging.WithName(logger, name)
-
-	eval := fmt.Sprintf(`'rs.initiate({_id: "rs0", members: [{_id: 0, host: "localhost:%s" }]})'`, port)
-	args := []string{"compose", "exec", "-T", name, "mongosh", "--eval", eval, uri}
-
-	var buf bytes.Buffer
-	var attempt int64
-
-	for ctx.Err() == nil {
-		buf.Reset()
-
-		err := runCommand("docker", args, &buf, logger)
-		if err == nil {
-			break
-		}
-
-		logger.InfoContext(ctx, fmt.Sprintf("%s:\n%s", err, buf.String()))
-
-		attempt++
-		ctxutil.SleepWithJitter(ctx, time.Second, attempt)
-	}
-
-	return ctx.Err()
-}
 
 // setup runs all setup commands.
 func setup(ctx context.Context, logger *slog.Logger) error {
@@ -80,10 +37,6 @@ func setup(ctx context.Context, logger *slog.Logger) error {
 	}
 
 	go h.Serve(ctx)
-
-	if err = setupMongoDB(ctx, logger, "mongodb://username:password@127.0.0.1:47017/", "mongodb-secure"); err != nil {
-		return lazyerrors.Error(err)
-	}
 
 	logger.InfoContext(ctx, "Done.")
 	return nil

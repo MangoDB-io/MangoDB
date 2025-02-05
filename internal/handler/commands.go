@@ -249,6 +249,10 @@ func (h *Handler) initCommands() {
 			Handler: h.MsgRefreshSessions,
 			Help:    "Updates the last used time of sessions.",
 		},
+		"reIndex": {
+			Handler: h.MsgReIndex,
+			Help:    "Drops and recreates all indexes except default _id index of a collection.",
+		},
 		"renameCollection": {
 			Handler: h.MsgRenameCollection,
 			Help:    "Changes the name of an existing collection.",

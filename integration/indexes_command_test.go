@@ -598,3 +598,55 @@ func TestDropIndexesCommandInvalidCollection(t *testing.T) {
 		})
 	}
 }
+
+func TestReIndexErrors(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		collectionName any
+
+		err        *mongo.CommandError
+		altMessage string
+	}{
+		"InvalidTypeCollection": {
+			collectionName: 42,
+			err: &mongo.CommandError{
+				Code:    73,
+				Name:    "InvalidNamespace",
+				Message: "collection name has invalid type int",
+			},
+			altMessage: "collection name has invalid type int32",
+		},
+		"EmptyCollection": {
+			collectionName: "",
+			err: &mongo.CommandError{
+				Code:    73,
+				Name:    "InvalidNamespace",
+				Message: "Invalid namespace specified 'TestReIndexErrors-EmptyCollection.'",
+			},
+		},
+		"NonExistentCollection": {
+			collectionName: "non-existent",
+			err: &mongo.CommandError{
+				Code:    26,
+				Name:    "NamespaceNotFound",
+				Message: "collection does not exist",
+			},
+			altMessage: "ns does not exist: TestReIndexErrors-NonExistentCollection.non-existent",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			ctx, collection := setup.Setup(t)
+
+			command := bson.D{
+				{"reIndex", tc.collectionName},
+			}
+
+			var res bson.D
+			err := collection.Database().RunCommand(ctx, command).Decode(&res)
+
+			require.Nil(t, res)
+			AssertEqualAltCommandError(t, *tc.err, tc.altMessage, err)
+		})
+	}
+}

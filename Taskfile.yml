@@ -216,7 +216,7 @@ tasks:
         ./...
         -target-backend=ferretdb
         -postgresql-url='postgres://username:password@127.0.0.1:5432/postgres'
-        -compat-url='mongodb://username:password@127.0.0.1:47017/?replicaSet=rs0'
+        -compat-url='mongodb://username:password@127.0.0.1:47017/'
         -no-xfail={{.NO_XFAIL}}
 
   test-integration-mongodb:
@@ -240,7 +240,7 @@ tasks:
         -coverpkg=../...
         -coverprofile=integration-mongodb.txt
         ./...
-        -target-url='mongodb://username:password@127.0.0.1:47017/?replicaSet=rs0'
+        -target-url='mongodb://username:password@127.0.0.1:47017/'
         -target-backend=mongodb
         -no-xfail={{.NO_XFAIL}}
 
