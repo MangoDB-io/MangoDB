@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM mongo:7.0.8
+FROM mongo:8.0.4
 
 # If you encounter an "unknown instruction" error there,
 # please update Docker to the latest version.
