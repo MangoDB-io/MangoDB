@@ -12,7 +12,7 @@ ARG LABEL_COMMIT
 
 # prepare stage
 
-FROM --platform=$BUILDPLATFORM golang:1.23.5 AS development-prepare
+FROM --platform=$BUILDPLATFORM golang:1.24rc2 AS development-prepare
 
 # use a single directory for all Go caches to simplify RUN --mount commands below
 ENV GOPATH=/cache/gopath
@@ -36,7 +36,7 @@ EOF
 
 # build stage
 
-FROM golang:1.23.5 AS development-build
+FROM golang:1.24rc2 AS development-build
 
 ARG TARGETARCH
 
@@ -102,7 +102,7 @@ COPY --from=development-build /src/bin/ferretdb /ferretdb
 
 # final stage
 
-FROM golang:1.23.5 AS development
+FROM golang:1.24rc2 AS development
 
 ENV GOCOVERDIR=/tmp/cover
 ENV GORACE=halt_on_error=1,history_size=2
