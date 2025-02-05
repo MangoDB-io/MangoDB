@@ -19,13 +19,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"net"
 	"os"
 	"strconv"
 
 	"github.com/FerretDB/wire"
 	"github.com/FerretDB/wire/wirebson"
-	"golang.org/x/exp/maps"
 
 	"github.com/FerretDB/FerretDB/v2/build/version"
 	"github.com/FerretDB/FerretDB/v2/internal/mongoerrors"
@@ -196,9 +196,8 @@ func convertJSON(value any) any {
 	switch value := value.(type) {
 	case map[string]any:
 		d := wirebson.MakeDocument(len(value))
-		keys := maps.Keys(value)
 
-		for _, k := range keys {
+		for k := range maps.Keys(value) {
 			v := value[k]
 			must.NoError(d.Add(k, convertJSON(v)))
 		}

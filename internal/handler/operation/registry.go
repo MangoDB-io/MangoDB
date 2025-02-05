@@ -16,12 +16,12 @@ package operation
 
 import (
 	"cmp"
+	"maps"
 	"slices"
 	"sync"
 	"sync/atomic"
 
 	"github.com/FerretDB/wire/wirebson"
-	"golang.org/x/exp/maps"
 
 	"github.com/FerretDB/FerretDB/v2/internal/util/resource"
 )
@@ -29,7 +29,7 @@ import (
 // Registry stores operations.
 type Registry struct {
 	rw         sync.RWMutex
-	operations map[int32]*Operation
+	operations map[int32]Operation
 
 	nextOperationID atomic.Int32
 
@@ -39,7 +39,7 @@ type Registry struct {
 // NewRegistry creates a new operation registry.
 func NewRegistry() *Registry {
 	res := &Registry{
-		operations: map[int32]*Operation{},
+		operations: map[int32]Operation{},
 		token:      resource.NewToken(),
 	}
 
@@ -56,7 +56,7 @@ func (r *Registry) Start(op string) int32 {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	r.operations[id] = o
+	r.operations[id] = *o
 
 	return id
 }
@@ -88,6 +88,8 @@ func (r *Registry) Update(id int32, db, collection string, command *wirebson.Doc
 	o.DB = db
 	o.Collection = collection
 	o.Command = command
+
+	r.operations[id] = o
 }
 
 // Operations returns all operations.
@@ -95,18 +97,9 @@ func (r *Registry) Operations() []Operation {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	ops := maps.Values(r.operations)
-
-	slices.SortFunc(ops, func(a, b *Operation) int {
+	return slices.SortedFunc(maps.Values(r.operations), func(a, b Operation) int {
 		return cmp.Compare(a.OpID, b.OpID)
 	})
-
-	var res []Operation
-	for _, op := range ops {
-		res = append(res, *op)
-	}
-
-	return res
 }
 
 // Close closes the operation registry.

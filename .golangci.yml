@@ -16,8 +16,9 @@ linters-settings:
             desc: use `context` package instead
           - pkg: golang.org/x/exp/slices
             desc: use `slices` package instead
-          # - pkg: golang.org/x/exp/maps
-          #   desc: use `maps` package instead
+          - pkg: golang.org/x/exp/maps
+            desc: use `maps` package instead
+
           - pkg: github.com/jackc/pgconn
             desc: use `github.com/jackc/pgx/v5/pgconn` package instead
           - pkg: github.com/jackc/pgproto3
@@ -28,10 +29,9 @@ linters-settings:
             desc: use `github.com/jackc/pgx/v5` package instead
           - pkg: github.com/jackc/pgx/v4
             desc: use `github.com/jackc/pgx/v5` package instead
-          - pkg: github.com/uber-go/zap
-            desc: use `log/slog` package instead
-            #- pkg: github.com/xdg-go/scram
-            #  desc: use `github.com/FerretDB/FerretDB/v2/internal/util/scram` package instead
+
+          # - pkg: github.com/xdg-go/scram
+          #   desc: use `github.com/FerretDB/FerretDB/v2/internal/util/scram` package instead
       ferretdb-in-tools:
         files:
           - "**/tools/**/*.go"

@@ -16,8 +16,8 @@ linters-settings:
             desc: use `context` package instead
           - pkg: golang.org/x/exp/slices
             desc: use `slices` package instead
-          # - pkg: golang.org/x/exp/maps
-          #   desc: use `maps` package instead
+          - pkg: golang.org/x/exp/maps
+            desc: use `maps` package instead
       commonerrors:
         files:
           - $all

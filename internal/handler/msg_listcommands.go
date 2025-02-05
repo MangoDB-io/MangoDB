@@ -16,11 +16,11 @@ package handler
 
 import (
 	"context"
+	"maps"
 	"slices"
 
 	"github.com/FerretDB/wire"
 	"github.com/FerretDB/wire/wirebson"
-	"golang.org/x/exp/maps"
 
 	"github.com/FerretDB/FerretDB/v2/internal/util/lazyerrors"
 	"github.com/FerretDB/FerretDB/v2/internal/util/must"
@@ -40,10 +40,8 @@ func (h *Handler) MsgListCommands(connCtx context.Context, msg *wire.OpMsg) (*wi
 	}
 
 	cmdList := must.NotFail(wirebson.NewDocument())
-	names := maps.Keys(h.Commands())
-	slices.Sort(names)
 
-	for _, name := range names {
+	for _, name := range slices.Sorted(maps.Keys(h.Commands())) {
 		cmd := h.Commands()[name]
 		if cmd.Help == "" {
 			continue

@@ -16,11 +16,11 @@ package handler
 
 import (
 	"context"
+	"maps"
 	"slices"
 
 	"github.com/FerretDB/wire"
 	"github.com/FerretDB/wire/wirebson"
-	"golang.org/x/exp/maps"
 
 	"github.com/FerretDB/FerretDB/v2/internal/util/lazyerrors"
 	"github.com/FerretDB/FerretDB/v2/internal/util/must"
@@ -46,9 +46,7 @@ func (h *Handler) MsgListDatabases(connCtx context.Context, msg *wire.OpMsg) (*w
 		return nil, lazyerrors.Error(err)
 	}
 
-	names := maps.Keys(list)
-	slices.Sort(names)
-
+	names := slices.Sorted(maps.Keys(list))
 	databases := wirebson.MakeArray(len(names))
 
 	for _, name := range names {
